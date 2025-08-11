@@ -33,7 +33,7 @@ alquileres.id_inquilino → clientes.id_cliente
 ventas.id_propiedad → propiedades.id_propiedad
 ventas.id_comprador → clientes.id_cliente
 
-[Diagrama Entidad- Relacion](entidad relacion.png)
-[Codigo SQL]()
+[Diagrama Entidad- Relacion](https://github.com/arig96/inmobiliaria_grosman/blob/main/entidad%20relacion.png))
+[Codigo SQL](https://github.com/arig96/inmobiliaria_grosman/blob/main/entrega1.sql)
 
 
