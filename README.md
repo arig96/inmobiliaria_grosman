@@ -33,6 +33,7 @@ alquileres.id_inquilino → clientes.id_cliente
 ventas.id_propiedad → propiedades.id_propiedad
 ventas.id_comprador → clientes.id_cliente
 
-[Para ver diagrama Entidad- Relacion](inmobiliaria.sql)
-A
+[Diagrama Entidad- Relacion](entidad relacion.png)
+[Codigo SQL]()
+
 
