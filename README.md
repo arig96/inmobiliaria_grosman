@@ -51,3 +51,6 @@ Como se muestra en el **DER**, la base de datos cuenta con las siguientes tablas
 - 🖼 **[Diagrama Entidad–Relación](https://github.com/arig96/inmobiliaria_grosman/blob/main/entidad%20relacion.png)**
 - 💻 **[Código SQL completo](https://github.com/arig96/inmobiliaria_grosman/blob/main/entrega1.sql)**
 
+Autor:
+Ariel Grosman
+
