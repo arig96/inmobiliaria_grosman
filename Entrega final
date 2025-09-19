@@ -1,0 +1,133 @@
+# 🏠 Inmobiliaria Grosman – Documentación Técnica
+
+## 📌 Introducción
+
+La base de datos **inmobiliaria\_grosman** modela la operatoria de una inmobiliaria: administración de propiedades, normalización de tipos de propiedad y localidades, gestión de clientes (dueños, compradores, inquilinos), registro de ventas y contratos de alquiler. Incluye vistas, índices, triggers y stored procedures para optimizar consultas y automatizar reglas de negocio.
+
+## 🎯 Objetivo
+
+Diseñar un esquema relacional **coherente, normalizado y performante** que permita:
+
+* Publicar y consultar propiedades (en venta / alquiler).
+* Registrar transacciones (ventas, alquileres) con reglas de negocio.
+* Garantizar integridad referencial y calidad de datos.
+* Exponer vistas y SPs para aplicaciones o BI.
+
+## ⚠️ Situación problemática
+
+La inmobiliaria llevaba todos los procesos en papel: duplicación de datos, inconsistencias, tiempos lentos de búsqueda y sin trazabilidad. Con la BD se unifican criterios, se evitan errores, se automatizan estados mediante triggers y se habilitan reportes confiables.
+
+## 💼 Modelo de negocio
+
+* **Clientes**: dueños, inquilinos y compradores.
+* **Empleados**: asesores asignados a propiedades.
+* **Localidades** y **Tipos de Propiedad**: catálogos normalizados.
+* **Propiedades**: entidad central; vinculada a un **cliente** (dueño), un **empleado**, una **localidad** y un **tipo**. Contiene flags `en_venta`, `en_alquiler` y estado derivado `vendida`.
+* **Ventas**: una propiedad solo puede venderse una vez (constraint UNIQUE).
+* **Alquileres**: triggers validan que no se alquilen propiedades vendidas ni se superpongan contratos.
+
+
+## 🗂️ Listado de tablas y columnas
+
+> **PK**: clave primaria · **FK**: clave foránea · **UK**: clave única
+
+### `localidades`
+
+| Columna        | Tipo         | Clave | Descripción         |
+| -------------- | ------------ | ----- | ------------------- |
+| id\_localidad  | INT AI       | PK    | Identificador único |
+| nombre         | VARCHAR(100) |       | Nombre localidad    |
+| provincia      | VARCHAR(100) |       | Provincia           |
+| codigo\_postal | VARCHAR(10)  |       | Código postal       |
+
+### `empleados`
+
+| Columna      | Tipo         | Clave | Descripción     |
+| ------------ | ------------ | ----- | --------------- |
+| id\_empleado | INT AI       | PK    | ID del empleado |
+| nombre       | VARCHAR(100) |       | Nombre          |
+| apellido     | VARCHAR(100) |       | Apellido        |
+| email        | VARCHAR(100) |       | Email           |
+| telefono     | VARCHAR(20)  |       | Teléfono        |
+
+### `clientes`
+
+| Columna     | Tipo         | Clave        | Descripción     |
+| ----------- | ------------ | ------------ | --------------- |
+| id\_cliente | INT AI       | PK           | ID cliente      |
+| nombre      | VARCHAR(100) |              | Nombre          |
+| apellido    | VARCHAR(100) |              | Apellido        |
+| dni         | VARCHAR(20)  | UK, NOT NULL | Documento único |
+| email       | VARCHAR(100) |              | Email           |
+| telefono    | VARCHAR(20)  |              | Teléfono        |
+
+### `tipos_propiedad`
+
+| Columna             | Tipo        | Clave | Descripción          |
+| ------------------- | ----------- | ----- | -------------------- |
+| id\_tipo\_propiedad | INT AI      | PK    | ID tipo de propiedad |
+| nombre              | VARCHAR(50) | UK    | Nombre oficial       |
+
+### `propiedades`
+
+| Columna             | Tipo            | Clave | Descripción                   |
+| ------------------- | --------------- | ----- | ----------------------------- |
+| id\_propiedad       | INT AI          | PK    | ID propiedad                  |
+| direccion           | VARCHAR(255)    |       | Domicilio                     |
+| id\_localidad       | INT             | FK    | Localidad                     |
+| id\_tipo\_propiedad | INT             | FK    | Tipo                          |
+| ambientes           | SMALLINT UNSIGN |       | Número de ambientes           |
+| superficie          | INT UNSIGNED    |       | m² (>0)                       |
+| precio              | DECIMAL(12,2)   |       | Precio listado                |
+| en\_alquiler        | TINYINT(1)      |       | Flag publicación alquiler     |
+| en\_venta           | TINYINT(1)      |       | Flag publicación venta        |
+| vendida             | TINYINT(1)      |       | Estado derivado (triggers)    |
+| id\_empleado        | INT             | FK    | Asesor asignado               |
+| id\_cliente         | INT             | FK    | Propietario                   |
+| precio\_m2          | DECIMAL(10,2)   | GEN   | Calculado (precio/superficie) |
+
+### `ventas`
+
+| Columna       | Tipo          | Clave  | Descripción       |
+| ------------- | ------------- | ------ | ----------------- |
+| id\_venta     | INT AI        | PK     | ID venta          |
+| id\_propiedad | INT           | FK, UK | Propiedad vendida |
+| id\_comprador | INT           | FK     | Cliente comprador |
+| fecha\_venta  | DATE          |        | Fecha             |
+| precio\_venta | DECIMAL(12,2) |        | Precio de venta   |
+
+### `alquileres`
+
+| Columna         | Tipo          | Clave | Descripción         |
+| --------------- | ------------- | ----- | ------------------- |
+| id\_alquiler    | INT AI        | PK    | ID alquiler         |
+| id\_propiedad   | INT           | FK    | Propiedad alquilada |
+| id\_inquilino   | INT           | FK    | Cliente inquilino   |
+| fecha\_inicio   | DATE          |       | Inicio contrato     |
+| fecha\_fin      | DATE          |       | Fin contrato / NULL |
+| precio\_mensual | DECIMAL(10,2) |       | Canon mensual       |
+
+## 💻 Scripts de creación
+
+> Ver el código en [`scripts/ddl.sql`](scripts/ddl.sql) para la creación completa (tablas, índices, triggers, vistas).
+
+## 📥 Scripts de inserción
+
+> Ver el código en [`scripts/dml.sql`](scripts/dml.sql) para inserción de datos de ejemplo (localidades, empleados, clientes, propiedades, ventas y alquileres).
+
+## 🔧 Objetos avanzados
+
+Triggers: actualizan automáticamente estados (vendida, en_venta) y evitan errores (alquileres solapados o sobre propiedades vendidas).
+
+Vista vista_propiedades_master: consulta consolidada de propiedades con datos de propietario, asesor, localidad y tipo.
+
+Stored Procedures: búsquedas por localidad, listado de propiedades en venta, registro de ventas y alquileres con validaciones.
+
+
+## 📊 Recursos
+- 🖼 **[Diagrama Entidad–Relación]()**
+- 💻 **[Código SQL completo]()**
+
+Autor:
+Ariel Grosman
+
