@@ -109,7 +109,7 @@ erDiagram
 
 ## 💻 Scripts
 - **DDL (creación de objetos)**: [`Entrega_final_ddl.sql`](Entrega_final_ddl.sql)
-- **DML (inserción de datos)**:[`Entrega_final_dml.sql`] (Entrega_final_dml.sql)
+- **DML (inserción de datos)**:[`Entrega_final_dml.sql`](Entrega_final_dml.sql)
 
 ## 🔧 Objetos avanzados
 - **Triggers**: actualizan `vendida` y `en_venta`; evitan alquileres en propiedades vendidas y solapamientos.
