@@ -67,3 +67,36 @@ INSERT INTO alquileres (id_propiedad, id_inquilino, fecha_inicio, fecha_fin, pre
 (3,  4, '2025-02-01', '2025-08-31', 65000.00),
 (7, 10, '2025-03-01', '2025-09-30', 72000.00),
 (9,  2, '2025-04-01', '2025-10-31', 95000.00);
+
+/* Codigo para descargar datos clave y exportar a excel */
+-- A) Vista maestra (inventario)
+SELECT * FROM vista_propiedades_master;
+
+-- B) Ventas por mes (para series)
+SELECT DATE_FORMAT(fecha_venta, '%Y-%m-01') AS mes, 
+       COUNT(*) AS cant_ventas,
+       SUM(precio_venta) AS monto_vendido
+FROM ventas
+GROUP BY 1
+ORDER BY 1;
+
+-- C) Precio m2 por tipo
+SELECT tp.nombre AS tipo, 
+       ROUND(AVG(p.precio_m2),2) AS precio_m2_prom
+FROM propiedades p
+JOIN tipos_propiedad tp ON tp.id_tipo_propiedad = p.id_tipo_propiedad
+GROUP BY 1;
+
+-- D) Precio m2 por localidad
+SELECT l.nombre AS localidad, 
+       ROUND(AVG(p.precio_m2),2) AS precio_m2_prom
+FROM propiedades p
+JOIN localidades l ON l.id_localidad = p.id_localidad
+GROUP BY 1;
+
+-- E) Alquileres (para vigentes y duración)
+SELECT a.*, p.direccion, l.nombre AS localidad, tp.nombre AS tipo
+FROM alquileres a
+JOIN propiedades p      ON p.id_propiedad = a.id_propiedad
+JOIN localidades  l     ON l.id_localidad = p.id_localidad
+JOIN tipos_propiedad tp ON tp.id_tipo_propiedad = p.id_tipo_propiedad;
